@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 | Déficit de Oferta Académica</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1B3A5C;--navy2:#2B4F76;--steel:#4A6D8C;
+  --light:#E8EEF4;--red:#C0392B;--gold:#D4A017;
+  --green:#27AE60;--orange:#E67E22;--gray:#F4F7FB;--text:#1A1A2E;
+}
+body{font-family:'Trebuchet MS',sans-serif;background:var(--gray);color:var(--text);min-height:100vh}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--steel);border-radius:4px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.tab-content{animation:fadeUp .35s ease}
+
+/* HEADER */
+.hdr{background:var(--navy);color:#fff;padding:28px 48px 24px;border-bottom:4px solid var(--gold);display:flex;align-items:baseline;gap:16px}
+.hdr-num{font-size:64px;font-weight:900;line-height:1;font-family:Georgia,serif;color:rgba(255,255,255,.1)}
+.hdr-title{font-size:26px;font-weight:700;letter-spacing:.5px;font-family:Georgia,serif}
+.hdr-sub{font-size:10px;letter-spacing:3px;color:rgba(255,255,255,.55);margin-top:3px}
+
+/* TABS */
+.tabs{background:var(--navy2);display:flex;overflow-x:auto}
+.tb{padding:11px 22px;border:none;cursor:pointer;font-size:10px;font-weight:700;letter-spacing:1.5px;white-space:nowrap;
+  color:rgba(255,255,255,.5);background:transparent;border-bottom:3px solid transparent;transition:all .2s;font-family:'Trebuchet MS',sans-serif}
+.tb.active{color:#fff;background:var(--navy);border-bottom:3px solid var(--gold)}
+.tb:hover:not(.active){color:rgba(255,255,255,.8)}
+
+/* CONTENT */
+.cnt{padding:28px 48px}
+.pnl{display:none}
+.pnl.active{display:block}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-bottom:24px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.mb24{margin-bottom:24px}
+
+/* CARD */
+.card{background:#fff;border:1px solid var(--light);padding:20px;transition:box-shadow .2s}
+.card:hover{box-shadow:0 4px 16px rgba(27,58,92,.1)}
+
+/* BLOCK TITLE */
+.bt{background:var(--navy);color:#fff;padding:7px 14px;font-size:10px;letter-spacing:2px;
+  font-weight:700;text-transform:uppercase;margin-bottom:14px;font-family:Georgia,serif}
+.bt.gold{background:var(--gold);color:var(--navy)}
+.bt.green{background:var(--green)}
+.bt.orange{background:var(--orange)}
+.bt.red{background:var(--red)}
+
+/* SOURCE */
+.src{font-size:9px;color:#7A8FA6;margin-top:8px;font-style:italic}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:11px}
+thead tr{background:var(--navy);color:#fff}
+thead th{padding:8px 10px;text-align:left;font-size:10px;letter-spacing:1px}
+tbody tr{border-bottom:1px solid var(--light);transition:background .15s}
+tbody tr:hover{background:#EBF0F7!important;cursor:default}
+tbody tr:nth-child(even){background:#F9FBFD}
+td{padding:7px 10px}
+.td-n{font-weight:600;color:var(--navy)}
+.td-c{text-align:center}
+.td-hl{background:#FFF9E6!important;border-left:3px solid var(--gold)!important}
+.td-red{background:#FFF0EE!important;border-left:3px solid var(--red)!important}
+.td-green{background:#F0FFF4!important;border-left:3px solid var(--green)!important}
+
+/* BADGES */
+.badge{border-radius:3px;padding:2px 8px;font-size:9px;font-weight:700;color:#fff;display:inline-block}
+.b-navy{background:var(--navy)}.b-green{background:var(--green)}.b-orange{background:var(--orange)}
+.b-red{background:var(--red)}.b-steel{background:var(--steel)}.b-gold{background:var(--gold);color:var(--navy)}
+
+/* INFO / ALERT */
+.info{background:var(--light);border-left:4px solid var(--navy);padding:16px 20px;margin-bottom:20px}
+.info-t{font-size:10px;font-weight:700;color:var(--navy);letter-spacing:2px;margin-bottom:8px}
+.alert-red{background:#FFF0EE;border:2px solid var(--red);padding:14px 18px;border-radius:4px;
+  display:flex;gap:14px;align-items:flex-start;margin-bottom:20px}
+.alert-green{background:#F0FFF4;border:2px solid var(--green);padding:14px 18px;border-radius:4px;
+  display:flex;gap:14px;align-items:flex-start;margin-bottom:20px}
+
+/* KPI */
+.kpi{background:var(--light);padding:16px;text-align:center;border-top:3px solid var(--navy);
+  transition:transform .2s,box-shadow .2s;cursor:default}
+.kpi:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,.1)}
+.kpi-v{font-size:26px;font-weight:800;font-family:Georgia,serif}
+.kpi-l{font-size:10px;font-weight:700;margin-top:4px}
+.kpi-s{font-size:9px;color:var(--steel);margin-top:2px}
+
+/* CHART */
+.cw{position:relative;height:240px}
+.cw-sm{position:relative;height:180px}
+.cw-md{position:relative;height:210px}
+
+/* TOGGLE SUPERAVIT/DEFICIT */
+.sd-toggle{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-bottom:24px;
+  border:2px solid var(--navy);border-radius:4px;overflow:hidden}
+.sd-btn{padding:14px;border:none;cursor:pointer;font-size:11px;font-weight:700;letter-spacing:1px;
+  background:#fff;color:var(--navy);transition:all .2s;font-family:'Trebuchet MS',sans-serif;
+  display:flex;align-items:center;justify-content:center;gap:10px}
+.sd-btn.act-red{background:var(--red);color:#fff}
+.sd-btn.act-green{background:var(--green);color:#fff}
+.sd-section{display:none}
+.sd-section.active{display:block;animation:fadeUp .3s ease}
+
+/* SECTOR CARDS déficit */
+.sector-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+.sector-card{background:#fff;border:1px solid var(--light);padding:0;overflow:hidden;
+  transition:all .25s;cursor:pointer;border-radius:4px}
+.sector-card:hover{box-shadow:0 6px 20px rgba(27,58,92,.15);transform:translateY(-2px)}
+.sector-card.active{box-shadow:0 0 0 2px var(--gold);transform:translateY(-2px)}
+.sector-head{padding:14px 12px;text-align:center}
+.sector-pct{font-size:32px;font-weight:900;font-family:Georgia,serif;line-height:1}
+.sector-name{font-size:10px;font-weight:700;letter-spacing:.5px;margin-top:6px}
+.sector-icon{font-size:28px;margin-bottom:6px}
+.sector-body{padding:12px;border-top:1px solid var(--light);background:var(--light);
+  font-size:9px;color:var(--text);line-height:1.6}
+
+/* CARRERA ITEM */
+.carrera-list{display:flex;flex-direction:column;gap:6px}
+.carrera-item{background:#fff;border:1px solid var(--light);padding:10px 14px;
+  border-left:3px solid var(--navy);border-radius:0 4px 4px 0;font-size:10px;transition:all .2s}
+.carrera-item:hover{border-left-color:var(--gold);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.carrera-item strong{display:block;color:var(--navy);font-size:11px;margin-bottom:2px}
+.carrera-item span{color:var(--steel)}
+
+/* SATURACIÓN CARD */
+.sat-card{background:#fff;border:1px solid var(--light);padding:0;overflow:hidden;border-radius:4px;margin-bottom:10px}
+.sat-head{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;
+  cursor:pointer;transition:background .15s}
+.sat-head:hover{background:rgba(192,57,43,.04)}
+.sat-label{font-size:11px;font-weight:700;color:var(--navy)}
+.sat-right{display:flex;align-items:center;gap:12px}
+.sat-post{font-size:13px;font-weight:800;color:var(--red);font-family:Georgia,serif}
+.sat-arrow{font-size:11px;color:var(--steel);transition:transform .25s}
+.sat-card.open .sat-arrow{transform:rotate(180deg)}
+.sat-body{display:none;padding:0 16px 14px}
+.sat-body.open{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;animation:fadeUp .2s ease}
+.sat-stat{background:var(--light);padding:10px;border-radius:3px;text-align:center}
+.sat-stat-t{font-size:8px;font-weight:700;color:var(--steel);letter-spacing:1px;margin-bottom:4px}
+.sat-stat-v{font-size:13px;font-weight:700;color:var(--navy)}
+.sat-note{grid-column:1/-1;font-size:10px;color:#555;line-height:1.65;
+  background:#FFF0EE;border-left:3px solid var(--red);padding:10px;border-radius:3px}
+
+/* CONVERSOR */
+.conv-item{background:#fff;border:1px solid var(--light);border-left:4px solid var(--navy);margin-bottom:10px;
+  transition:all .2s;cursor:pointer;overflow:hidden}
+.conv-item.open{border-left-color:var(--gold);box-shadow:0 4px 16px rgba(27,58,92,.1)}
+.conv-head{padding:14px 18px;display:flex;justify-content:space-between;align-items:center}
+.conv-left{display:flex;align-items:center;gap:14px}
+.conv-icon{font-size:22px;width:36px;text-align:center;flex-shrink:0}
+.conv-label{font-size:11px;font-weight:700;color:var(--navy)}
+.conv-sub{font-size:9px;color:var(--steel);margin-top:2px}
+.conv-right{display:flex;align-items:center;gap:16px;flex-shrink:0}
+.conv-val{font-size:16px;font-weight:800;color:var(--gold);font-family:Georgia,serif}
+.conv-range{font-size:9px;color:var(--steel)}
+.conv-arrow{font-size:11px;color:var(--steel);transition:transform .2s}
+.conv-item.open .conv-arrow{transform:rotate(180deg)}
+.conv-body{display:none;padding:0 18px 16px}
+.conv-body.open{display:block;animation:fadeUp .2s ease}
+.conv-body-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.conv-stat{background:var(--light);padding:10px 12px;border-radius:4px}
+.conv-stat-t{font-size:8px;font-weight:700;color:var(--steel);letter-spacing:1px;margin-bottom:3px}
+.conv-stat-v{font-size:12px;font-weight:700;color:var(--navy)}
+.conv-text{font-size:10px;color:#444;line-height:1.7;margin-bottom:6px}
+.conv-src{font-size:9px;color:var(--steel);font-style:italic}
+
+/* DETERMINANTE */
+.det-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+.det{background:#fff;border:1px solid var(--light);padding:16px 12px;text-align:center;
+  border-radius:4px;border-top:3px solid var(--navy);transition:all .2s;cursor:default}
+.det:hover{box-shadow:0 4px 12px rgba(0,0,0,.1);transform:translateY(-2px)}
+.det-icon{font-size:28px;margin-bottom:8px}
+.det-name{font-size:11px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.det-text{font-size:9px;color:var(--steel);line-height:1.6}
+
+/* BARRAS SATURACIÓN */
+.sat-bar-row{margin-bottom:10px}
+.sat-bar-meta{display:flex;justify-content:space-between;font-size:10px;font-weight:600;color:var(--text);margin-bottom:4px}
+.sat-bar-track{background:var(--light);border-radius:20px;height:10px;overflow:hidden}
+.sat-bar{height:100%;border-radius:20px;transition:width 1.2s ease}
+
+/* CONCL */
+.concl{background:var(--navy);color:#fff;padding:20px;border-radius:4px;margin-top:24px}
+.concl-t{font-size:10px;font-weight:700;color:var(--gold);letter-spacing:2px;margin-bottom:12px}
+.concl-g{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;font-size:11px;line-height:1.7}
+.concl-st{color:var(--gold);font-weight:700;margin-bottom:5px;font-size:12px}
+
+/* FOOTER */
+.ftr{background:#EEF2F6;border-top:2px solid var(--navy);padding:16px 48px}
+.ftr-t{font-size:9px;color:var(--steel);font-weight:700;letter-spacing:2px;margin-bottom:6px}
+.ftr-r{display:grid;grid-template-columns:1fr 1fr;gap:2px 32px;font-size:9px;color:#5A6E82;line-height:1.8}
+
+@media(max-width:900px){
+  .cnt,.hdr,.ftr{padding:16px 20px}
+  .g2,.g3,.g4,.sector-grid,.det-grid,.concl-g,.sat-body.open,.conv-body-grid{grid-template-columns:1fr}
+  .sd-toggle{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <span class="hdr-num">03</span>
+  <div>
+    <div class="hdr-title">SUPERÁVIT Y DÉFICIT DE OFERTA ACADÉMICA</div>
+    <div class="hdr-sub">SATURACIÓN ACADÉMICA · ÁREAS DESATENDIDAS · CARRERAS EN DÉFICIT · CONVERSORES · DETERMINANTES</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tb active" onclick="switchTab(0)">3.1 Panorama</button>
+  <button class="tb" onclick="switchTab(1)">3.2 Superávit</button>
+  <button class="tb" onclick="switchTab(2)">3.3 Déficit</button>
+  <button class="tb" onclick="switchTab(3)">3.4 Carreras Específicas</button>
+  <button class="tb" onclick="switchTab(4)">3.5 Conversores</button>
+  <button class="tb" onclick="switchTab(5)">3.6 Determinantes</button>
+</div>
+
+<div class="cnt">
+
+<!-- ══ 3.1 PANORAMA ══ -->
+<div class="pnl active tab-content" id="tab-0">
+
+  <!-- Toggle -->
+  <div class="sd-toggle">
+    <button class="sd-btn act-red" id="sdBtn0" onclick="toggleSD(0)">
+      🔴 SUPERÁVIT — Saturación académica
+    </button>
+    <button class="sd-btn" id="sdBtn1" onclick="toggleSD(1)">
+      🟢 DÉFICIT — Áreas desatendidas
+    </button>
+  </div>
+
+  <!-- SUPERÁVIT -->
+  <div class="sd-section active" id="sd-0">
+    <div class="g4">
+      <div class="kpi" style="border-top-color:var(--red)">
+        <div class="kpi-v" style="color:var(--red)" data-target="383395" data-int="1">0</div>
+        <div class="kpi-l">Aspirantes nacionales 2022</div>
+        <div class="kpi-s">52,47% hombres · 35,77% mujeres · SENESCYT 2022</div>
+      </div>
+      <div class="kpi" style="border-top-color:var(--red)">
+        <div class="kpi-v" style="color:var(--red)" data-target="25096" data-int="1">0</div>
+        <div class="kpi-l">Postulantes a Derecho (2022)</div>
+        <div class="kpi-s">La carrera más postulada del país · SENESCYT 2022</div>
+      </div>
+      <div class="kpi" style="border-top-color:var(--orange)">
+        <div class="kpi-v" style="color:var(--orange)" data-target="61.1" data-dec="1">0</div>
+        <div class="kpi-l">% elige carreras tradicionales</div>
+        <div class="kpi-s">Sin cambios pese a pandemia y nuevas demandas · SENESCYT 2022</div>
+      </div>
+      <div class="kpi" style="border-top-color:var(--red)">
+        <div class="kpi-v" style="color:var(--red)" data-target="13" data-int="1">0</div>
+        <div class="kpi-l">% oferta técnica con interés</div>
+        <div class="kpi-s">I período 2023: 30 carreras / 2.432 cupos / solo 2.121 aceptados · Primicias 2023</div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="bt red">Carreras más postuladas Ecuador 2022 — saturación del sistema</div>
+        <div class="cw"><canvas id="chSat"></canvas></div>
+        <p class="src"><strong>Fuente:</strong> SENESCYT — Datos postulación 2022; El Universo dic. 2023 (CEAP-ESPOL); Radio Intermedia Ecuador ago. 2023</p>
+      </div>
+      <div class="card">
+        <div class="bt red">Postulantes vs. cupos disponibles — carreras saturadas</div>
+        <div class="cw"><canvas id="chCupos"></canvas></div>
+        <p class="src"><strong>Fuente:</strong> SENESCYT 2022; Hidrobo E. (2024) AFEME — médicos; Primicias 2023 (cupos)</p>
+      </div>
+    </div>
+    <div class="info">
+      <div class="info-t">CAUSA ESTRUCTURAL DEL SUPERÁVIT ACADÉMICO</div>
+      <p style="font-size:11px;line-height:1.8">
+        <strong>"Una deuda pendiente en nuestro país es la relación con la educación técnica. El Estado debe proporcionar oferta académica para quienes no puedan o no quieran una carrera universitaria — muchas de ellas saturadas — que permitan su acceso masivo a la educación superior y a la especialización, a la formación de mano de obra calificada; cuestiones claves para el desarrollo transversal del país."</strong>
+        <br><em style="font-size:10px;color:var(--steel)">— León (vicerrector), citado en El Universo, dic. 2023; CEAP-ESPOL</em>
+      </p>
+    </div>
+  </div>
+
+  <!-- DÉFICIT -->
+  <div class="sd-section" id="sd-1">
+    <div class="g4">
+      <div class="kpi" style="border-top-color:var(--green)">
+        <div class="kpi-v" style="color:var(--green)">0</div>
+        <div class="kpi-l">Postulantes Mecanización Agrícola</div>
+        <div class="kpi-s">30 cupos disponibles sin interés · I período 2023 · Primicias ago. 2023</div>
+      </div>
+      <div class="kpi" style="border-top-color:var(--green)">
+        <div class="kpi-v" style="color:var(--green)">2</div>
+        <div class="kpi-l">Matriculados Producción Agropecuaria</div>
+        <div class="kpi-s">Carrera nacional con 0 cupos llenados · Primicias ago. 2023</div>
+      </div>
+      <div class="kpi" style="border-top-color:var(--orange)">
+        <div class="kpi-v" style="color:var(--orange)">3</div>
+        <div class="kpi-l">Estudiantes Geociencias / Automatización</div>
+        <div class="kpi-s">60 cupos ofertados / 3 matriculados · Primicias ago. 2023</div>
+      </div>
+      <div class="kpi" style="border-top-color:var(--gold)">
+        <div class="kpi-v" style="color:var(--gold)">34%</div>
+        <div class="kpi-l">Peso del déficit en Producción</div>
+        <div class="kpi-s">Mayor brecha entre oferta-demanda laboral · datos SENESCYT 2022</div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="bt green">Distribución del déficit de oferta — sectores desatendidos Zona 6</div>
+        <div class="cw"><canvas id="chDeficit"></canvas></div>
+        <p class="src"><strong>Fuente:</strong> SENESCYT — Datos Zona 6 2022; Primicias ago. 2023 (carreras sin interés); Secretaría Planificación Zona 6, 2021</p>
+      </div>
+      <div class="card">
+        <div class="bt green">Brechas de cobertura — Zona 6 por sector productivo</div>
+        <div class="cw"><canvas id="chBrechas"></canvas></div>
+        <p class="src"><strong>Fuente:</strong> SENESCYT oferta académica vigente 2022; Tec. Azuay 2024; El Mercurio oct. 2022; WEF FoJ 2025</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 3.2 SUPERÁVIT ══ -->
+<div class="pnl tab-content" id="tab-1">
+
+  <div class="alert-red">
+    <span style="font-size:26px;flex-shrink:0">📊</span>
+    <div>
+      <div style="font-size:11px;font-weight:700;color:var(--red);letter-spacing:1px">SATURACIÓN ACADÉMICA ESTRUCTURAL — DIAGNÓSTICO NACIONAL</div>
+      <div style="font-size:11px;line-height:1.7;margin-top:4px">
+        En 2022 hubo <strong>383.395 aspirantes</strong> a nivel nacional. El <strong>61,1% elige carreras tradicionales</strong> (Derecho, Medicina, Educación, Enfermería)
+        a pesar de que estas presentan la mayor saturación laboral. En I período 2023, el <strong>87% de la oferta técnica no generó interés</strong>:
+        30 carreras ofrecieron 2.432 cupos pero solo 2.121 fueron aceptados. Esto revela un sistema paradójico donde sobran cupos técnicos y faltan cupos universitarios convencionales.
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards expandibles de cada carrera saturada -->
+  <div class="card mb24">
+    <div class="bt red">Carreras con superávit crítico — indicadores de saturación (haz clic para detalles)</div>
+    <div id="satList"></div>
+    <p class="src" style="margin-top:12px"><strong>Fuente:</strong> SENESCYT — Datos postulación 2022 (CEAP-ESPOL, El Universo dic. 2023); Hidrobo E. (2024) La Oferta y Demanda de Médicos en Ecuador 2016–2030; AFEME 2024; Radio Intermedia Ecuador ago. 2023</p>
+  </div>
+
+  <!-- Gráfico saturación por área -->
+  <div class="g2">
+    <div class="card">
+      <div class="bt red">Concentración de postulaciones por área — Ecuador 2022</div>
+      <div class="cw"><canvas id="chConcentracion"></canvas></div>
+      <p class="src"><strong>Fuente:</strong> SENESCYT 2022; El Universo dic. 2023</p>
+    </div>
+    <div class="card">
+      <div class="bt">Evolución de preferencias — carreras tradicionales vs. técnicas (Ecuador)</div>
+      <div class="cw"><canvas id="chEvolucion"></canvas></div>
+      <div style="font-size:10px;color:var(--steel);line-height:1.65;margin-top:10px">
+        La tendencia muestra que ni la pandemia (2020–2022) ni los cambios del mercado laboral han logrado modificar significativamente
+        las preferencias hacia carreras técnicas. La brecha entre oferta técnica y demanda laboral sigue ampliándose.
+      </div>
+      <p class="src"><strong>Fuente:</strong> SENESCYT 2022; OtraEducacion.blogspot.com (Orozco Mónica, recopilación histórica 2017–2023); Primicias mar. 2022</p>
+    </div>
+  </div>
+
+  <!-- Carreras sin interés -->
+  <div class="card">
+    <div class="bt orange">Carreras con cupos sobrantes — Ecuador I período 2023</div>
+    <table>
+      <thead><tr>
+        <th>Carrera</th><th>Cupos ofertados</th><th>Aceptados</th><th>% ocupación</th><th>Sector estratégico</th><th>Urgencia laboral</th>
+      </tr></thead>
+      <tbody>
+        <tr class="td-red"><td class="td-n">Mecanización Agrícola</td><td>30</td><td>0</td>
+          <td><span class="badge b-red">0%</span></td><td>Agropecuario</td>
+          <td><span class="badge b-green">ALTA — agroexportador</span></td></tr>
+        <tr class="td-red"><td class="td-n">Tecnol. Superior Mecanización Agrícola</td><td>60</td><td>0</td>
+          <td><span class="badge b-red">0%</span></td><td>Agropecuario</td>
+          <td><span class="badge b-green">ALTA — agroexportador</span></td></tr>
+        <tr class="td-red"><td class="td-n">Producción Agropecuaria</td><td>60</td><td>2</td>
+          <td><span class="badge b-red">3,3%</span></td><td>Agropecuario</td>
+          <td><span class="badge b-green">ALTA — transición verde</span></td></tr>
+        <tr class="td-red"><td class="td-n">Biotecnología</td><td>60</td><td>2</td>
+          <td><span class="badge b-red">3,3%</span></td><td>Ciencias aplicadas</td>
+          <td><span class="badge b-green">ALTA — agroindustria</span></td></tr>
+        <tr class="td-red"><td class="td-n">Geociencias</td><td>60</td><td>3</td>
+          <td><span class="badge b-red">5%</span></td><td>Recursos naturales</td>
+          <td><span class="badge b-orange">MEDIA</span></td></tr>
+        <tr class="td-red"><td class="td-n">Automatización e Instrumentación</td><td>60</td><td>3</td>
+          <td><span class="badge b-red">5%</span></td><td>Industria / TI</td>
+          <td><span class="badge b-green">MUY ALTA — manufactura</span></td></tr>
+        <tr class="td-red"><td class="td-n">Modelado y Producción Industrial Indumentaria</td><td>60</td><td>2</td>
+          <td><span class="badge b-red">3,3%</span></td><td>Producción textil</td>
+          <td><span class="badge b-orange">MEDIA</span></td></tr>
+        <tr class="td-red"><td class="td-n">Hidrología / Ingeniería Agroforestal</td><td>60</td><td>5–10</td>
+          <td><span class="badge b-red">8–17%</span></td><td>Ambiente / Agrícola</td>
+          <td><span class="badge b-green">ALTA — sostenibilidad</span></td></tr>
+        <tr class="td-red"><td class="td-n">Tecnologías Geoespaciales</td><td>60</td><td>5–10</td>
+          <td><span class="badge b-red">8–17%</span></td><td>TI / Geomática</td>
+          <td><span class="badge b-orange">MEDIA-ALTA</span></td></tr>
+      </tbody>
+    </table>
+    <p class="src"><strong>Fuente:</strong> Primicias — "Estas son las carreras que pocos quieren estudiar en Ecuador" (ago. 2023); SENESCYT titulara Andrea Montalvo, I período 2023</p>
+  </div>
+</div>
+
+<!-- ══ 3.3 DÉFICIT ══ -->
+<div class="pnl tab-content" id="tab-2">
+
+  <div class="alert-green mb24" style="margin-bottom:24px">
+    <span style="font-size:26px;flex-shrink:0">🎯</span>
+    <div>
+      <div style="font-size:11px;font-weight:700;color:var(--green);letter-spacing:1px">DÉFICIT EDUCATIVO TERRITORIAL — OPORTUNIDAD ESTRATÉGICA</div>
+      <div style="font-size:11px;line-height:1.7;margin-top:4px">
+        Se evidencia un <strong>vacío en la cobertura formativa</strong> de sectores productivos, artísticos y tecnológicos,
+        lo que genera una brecha entre la oferta académica y las dinámicas del territorio.
+        Los datos SENESCYT 2022 confirman que estos sectores presentan déficit de oferta técnica en la Zona 6,
+        mientras el mercado laboral los demanda crecientemente (WEF FoJ 2025).
+      </div>
+    </div>
+  </div>
+
+  <!-- Sectores desatendidos -->
+  <div class="card mb24">
+    <div class="bt green">Sectores desatendidos — haz clic en cada sector para ver las carreras en déficit</div>
+    <div class="sector-grid" id="sectorGrid"></div>
+    <div id="sectorDetail" style="display:none;background:var(--light);border-left:4px solid var(--gold);
+      padding:16px 20px;margin-top:8px;animation:fadeUp .25s ease"></div>
+    <p class="src"><strong>Fuente:</strong> SENESCYT — Datos Zona 6 2022; Primicias ago. 2023; WEF Future of Jobs 2025; Secretaría de Planificación Zona 6, 2021</p>
+  </div>
+
+  <!-- Tabla sectores desatendidos -->
+  <div class="card mb24">
+    <div class="bt green">Áreas académicas y sectores desatendidos — análisis por provincia</div>
+    <table>
+      <thead><tr>
+        <th>Área / Sector</th><th>Cobertura Azuay</th><th>Cobertura Cañar</th>
+        <th>Cobertura Morona S.</th><th>Déficit global Z6</th><th>Demanda laboral</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td-n">🌱 Tecnología Agropecuaria</td>
+          <td><span class="badge b-orange">PARCIAL</span> UDA rural</td>
+          <td><span class="badge b-orange">PARCIAL</span> Quilloac</td>
+          <td><span class="badge b-red">NULA</span></td>
+          <td><span class="badge b-red">DÉFICIT</span></td><td>Alta — WEF: +34M empleos al 2030</td></tr>
+        <tr><td class="td-n">🌍 Turismo y Gastronomía</td>
+          <td><span class="badge b-orange">PARCIAL</span> Tec. Azuay</td>
+          <td><span class="badge b-red">NULA</span></td>
+          <td><span class="badge b-red">NULA</span></td>
+          <td><span class="badge b-red">DÉFICIT</span></td><td>Alta — Cuenca Patrimonio UNESCO</td></tr>
+        <tr><td class="td-n">🎭 Artes / Música / Danza</td>
+          <td><span class="badge b-orange">PARCIAL</span> UCuenca / Conservatorio</td>
+          <td><span class="badge b-red">NULA</span></td>
+          <td><span class="badge b-red">NULA</span></td>
+          <td><span class="badge b-orange">PARCIAL</span></td><td>Media — sector cultural en expansión</td></tr>
+        <tr><td class="td-n">💻 Tecnologías Emergentes</td>
+          <td><span class="badge b-orange">PARCIAL</span> Tec. Azuay / UPS</td>
+          <td><span class="badge b-red">NULA</span></td>
+          <td><span class="badge b-red">NULA</span></td>
+          <td><span class="badge b-red">DÉFICIT</span></td><td>Muy alta — ciberseg. +33%, Big Data +58%</td></tr>
+        <tr><td class="td-n">🏭 Producción / Industria</td>
+          <td><span class="badge b-orange">PARCIAL</span> Tec. Azuay</td>
+          <td><span class="badge b-red">NULA</span></td>
+          <td><span class="badge b-red">NULA</span></td>
+          <td><span class="badge b-red">DÉFICIT</span></td><td>Alta — hub industrial Cuenca</td></tr>
+        <tr><td class="td-n">🏥 Salud Técnica / Auxiliares</td>
+          <td><span class="badge b-red">NULA</span> (solo univ.)</td>
+          <td><span class="badge b-red">NULA</span></td>
+          <td><span class="badge b-red">NULA</span></td>
+          <td><span class="badge b-red">DÉFICIT CRÍTICO</span></td><td>Muy alta — déficit 9.063 esp. nac.</td></tr>
+        <tr><td class="td-n">🏗️ Construcción Sostenible</td>
+          <td><span class="badge b-red">NULA</span></td>
+          <td><span class="badge b-red">NULA</span></td>
+          <td><span class="badge b-red">NULA</span></td>
+          <td><span class="badge b-red">NULA EN Z6</span></td><td>Alta — infraestructura sostenible WEF</td></tr>
+        <tr><td class="td-n">📊 Mercadotecnia / Diseño Digital</td>
+          <td><span class="badge b-orange">PARCIAL</span> IES privadas básico</td>
+          <td><span class="badge b-red">NULA</span></td>
+          <td><span class="badge b-red">NULA</span></td>
+          <td><span class="badge b-orange">PARCIAL</span></td><td>Alta — digitalización comercio Z6</td></tr>
+      </tbody>
+    </table>
+    <p class="src"><strong>Fuente:</strong> SENESCYT oferta académica vigente 2022; Tec. Azuay 2024 (tecazuay.edu.ec); WEF Future of Jobs 2025; AFEME 2024; Secretaría de Planificación Zona 6, 2021</p>
+  </div>
+
+  <!-- Gráficos déficit -->
+  <div class="g2">
+    <div class="card">
+      <div class="bt green">Distribución del déficit — peso por sector desatendido</div>
+      <div class="cw"><canvas id="chDeficit2"></canvas></div>
+      <p class="src"><strong>Fuente:</strong> SENESCYT datos Zona 6 2022; análisis propio (apartado 03)</p>
+    </div>
+    <div class="card">
+      <div class="bt">Cobertura actual vs. demanda laboral — Zona 6 (radar)</div>
+      <div class="cw"><canvas id="chRadarDef"></canvas></div>
+      <p class="src"><strong>Fuente:</strong> SENESCYT 2022; WEF FoJ 2025; AFEME 2024; Dirección Regional Trabajo Cuenca 2023</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 3.4 CARRERAS ESPECÍFICAS EN DÉFICIT ══ -->
+<div class="pnl tab-content" id="tab-3">
+
+  <div class="info mb24">
+    <div class="info-t">CARRERAS ESPECÍFICAS SIN OFERTA EN LA ZONA 6 — DATOS SENESCYT 2022</div>
+    <p style="font-size:11px;line-height:1.8">
+      Las siguientes carreras presentan nula o mínima cobertura en la Zona 6, coincidiendo con los sectores
+      de mayor demanda laboral proyectada. Son precisamente estas las <strong>carreras de interés público</strong>
+      reconocidas por el Acuerdo SENESCYT-2023-0033-AC, que prioriza TIC, agropecuaria, construcción, salud técnica
+      e ingeniería-automatización para su implementación en el sistema público.
+    </p>
+  </div>
+
+  <div class="g2">
+    <!-- Columna izquierda -->
+    <div>
+      <div class="card mb24">
+        <div class="bt green">🌱 Agrarias y Ambiente</div>
+        <div class="carrera-list">
+          <div class="carrera-item"><strong>Agronomía técnica / Agrotecnología</strong><span>Nula en Zona 6 — UDA rural limitado, sin escala interprovincial</span></div>
+          <div class="carrera-item"><strong>Agroecología</strong><span>Parcial — UDA rural: 230 est. en 3 carreras (2022); sin campus propio</span></div>
+          <div class="carrera-item"><strong>Producción Pecuaria / Producción Animal</strong><span>Nula en institutos tecnológicos de la Zona 6</span></div>
+          <div class="carrera-item"><strong>Zootecnia</strong><span>Nula en nivel tecnológico — solo universitaria en ESPOCH sede Morona</span></div>
+          <div class="carrera-item"><strong>Ingeniería Ambiental técnica</strong><span>Nula en nivel técnico — solo universitaria en UCuenca y UCACUE</span></div>
+          <div class="carrera-item"><strong>Biotecnología agrícola</strong><span>Nula en Zona 6; 2 matriculados a nivel nacional en I período 2023</span></div>
+        </div>
+        <p class="src" style="margin-top:12px"><strong>Fuente:</strong> SENESCYT 2022 (Zona 6); Primicias ago. 2023 (0–2 matriculados en Producción Agropecuaria); formaciontecnologica.uazuay.edu.ec 2024</p>
+      </div>
+
+      <div class="card mb24">
+        <div class="bt" style="background:var(--orange)">🌍 Turismo y Gastronomía</div>
+        <div class="carrera-list">
+          <div class="carrera-item"><strong>Gastronomía técnica (tecnológico)</strong><span>Nula como tecnológico — UCACUE ofrece modalidad dual universitaria</span></div>
+          <div class="carrera-item"><strong>Turismo Rural / Ecoturismo</strong><span>Parcial — UDA: Turismo Rural rural (limitado); sin oferta en Cañar/Morona</span></div>
+          <div class="carrera-item"><strong>Gestión de Patrimonio Cultural técnica</strong><span>Parcial — Tec. Azuay: 1 carrera en Cuenca; sin cobertura interprovincial</span></div>
+          <div class="carrera-item"><strong>Gestión Hotelera tecnológica</strong><span>Nula en tecnológico — solo hospitalidad universitaria UCuenca</span></div>
+        </div>
+        <p class="src" style="margin-top:12px"><strong>Fuente:</strong> SENESCYT 2022; tecazuay.edu.ec 2024; formaciontecnologica.uazuay.edu.ec 2024</p>
+      </div>
+
+      <div class="card">
+        <div class="bt" style="background:#8E44AD">🎭 Artes, Música y Danza</div>
+        <div class="carrera-list">
+          <div class="carrera-item"><strong>Artes Musicales (tecnológico)</strong><span>Solo Conservatorio José María Rodríguez (Cuenca) — sin oferta en Cañar/Morona</span></div>
+          <div class="carrera-item"><strong>Artes Escénicas / Danza</strong><span>Parcial — UCuenca Facultad de Artes; sin institutos tecnológicos en la zona</span></div>
+          <div class="carrera-item"><strong>Ejecución de Instrumento Musical</strong><span>Solo Conservatorio Superior — nivel técnico inexistente fuera de Cuenca</span></div>
+          <div class="carrera-item"><strong>Actuación / Teatro</strong><span>Nula en nivel técnico-tecnológico en toda la Zona 6</span></div>
+        </div>
+        <p class="src" style="margin-top:12px"><strong>Fuente:</strong> SENESCYT 2022; UCuenca oferta académica 2023</p>
+      </div>
+    </div>
+
+    <!-- Columna derecha -->
+    <div>
+      <div class="card mb24">
+        <div class="bt">💻 Tecnologías Emergentes</div>
+        <div class="carrera-list">
+          <div class="carrera-item"><strong>Big Data / Análisis de Datos</strong><span>Parcial — Tec. Azuay (1 carrera, solo Cuenca); 3 est. en Automatización nacional 2023</span></div>
+          <div class="carrera-item"><strong>Desarrollo de Software avanzado</strong><span>Parcial — Tec. Azuay / UPS (Cuenca); nula en Cañar y Morona Santiago</span></div>
+          <div class="carrera-item"><strong>Desarrollo de Aplicaciones Web / Móvil</strong><span>Parcial — varios institutos privados básicos; sin institutos públicos fuera de Cuenca</span></div>
+          <div class="carrera-item"><strong>Mecatrónica</strong><span>Parcial — Tec. Azuay (1 carrera); nula en Cañar y Morona Santiago</span></div>
+          <div class="carrera-item"><strong>Electrónica y Automatización</strong><span>3 matriculados nacionales / 60 cupos — I período 2023 (Primicias 2023)</span></div>
+          <div class="carrera-item"><strong>Electrónica Automotriz</strong><span>Nula en nivel tecnológico público en la Zona 6</span></div>
+        </div>
+        <p class="src" style="margin-top:12px"><strong>Fuente:</strong> SENESCYT 2022; Primicias ago. 2023 (3 matriculados Automatización); tecazuay.edu.ec 2024</p>
+      </div>
+
+      <div class="card mb24">
+        <div class="bt" style="background:var(--steel)">🏭 Producción (General)</div>
+        <div class="carrera-list">
+          <div class="carrera-item"><strong>Procesamiento Industrial de la Madera</strong><span>Parcial — Tec. Azuay (1 carrera); nula en Cañar y Morona (alto potencial forestal)</span></div>
+          <div class="carrera-item"><strong>Producción Industrial / Manufactura</strong><span>Muy limitada — sin tecnológico industrial fuera del Parque Industrial Cuenca</span></div>
+          <div class="carrera-item"><strong>Tejidos / Textiles</strong><span>Nula en Zona 6 — 2 matriculados nacionales (Modelado Indumentaria, 2023)</span></div>
+          <div class="carrera-item"><strong>Metalmecánica avanzada</strong><span>Parcial — Tec. Azuay 1 carrera; nula fuera de Cuenca</span></div>
+          <div class="carrera-item"><strong>Contabilidad y Auditoría / Comercio Exterior</strong><span>Saturada en universitario; Marketing digital y Negocios Digitales sin oferta técnica</span></div>
+        </div>
+        <p class="src" style="margin-top:12px"><strong>Fuente:</strong> SENESCYT 2022; Primicias ago. 2023; tecazuay.edu.ec 2024</p>
+      </div>
+
+      <!-- Acuerdo SENESCYT -->
+      <div style="background:var(--navy);color:#fff;padding:18px;border-radius:4px">
+        <div style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:2px;margin-bottom:10px">
+          ⚖️ SENESCYT — ACUERDO Nro. 2023-0033-AC
+        </div>
+        <div style="font-size:11px;line-height:1.75">
+          Declara de <strong>interés público</strong> las carreras vinculadas a:
+          <strong>Ciencias Computacionales / TIC · Construcción e Ingeniería Civil · Producción agrícola-ganadera ·
+          Tecnologías de la Información · Ingeniería y Automatización · Tecnologías de protección ambiental</strong>.
+          Estas coinciden directamente con las 6 carreras propuestas en el proyecto, garantizando su respaldo normativo
+          y acceso a incentivos para su implementación pública.
+        </div>
+        <div style="font-size:9px;color:rgba(255,255,255,.6);margin-top:8px">
+          Fuente: educacionsuperior.gob.ec — Carreras de Interés Público, 22 nov. 2023
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 3.5 CONVERSORES DE DÉFICIT ══ -->
+<div class="pnl tab-content" id="tab-4">
+
+  <div class="info mb24">
+    <div class="info-t">¿QUÉ SON LOS CONVERSORES DE DÉFICIT?</div>
+    <p style="font-size:11px;line-height:1.8">
+      Los conversores son instrumentos analíticos que traducen el déficit cuantificado en <strong>parámetros dimensionantes</strong>
+      para el proyecto arquitectónico. No son valores exactos sino rangos orientativos que establecen la escala de la intervención,
+      la capacidad de los espacios y la prioridad de los programas académicos. Haz clic en cada conversor para ver el cálculo completo.
+    </p>
+  </div>
+
+  <div id="convList"></div>
+
+  <!-- Tabla resumen conversores -->
+  <div class="card" style="margin-top:20px">
+    <div class="bt gold">Tabla resumen de conversores — relación déficit → parámetro arquitectónico</div>
+    <table>
+      <thead><tr>
+        <th>Conversor</th><th>Valor base</th><th>Rango orientativo</th>
+        <th>Resultado Zona 6</th><th>Uso en el proyecto</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td-n">Población objetivo (17–25)</td><td>Cohorte Zona 6 2022</td><td>→ 2030</td>
+          <td><span class="badge b-navy">195.753 → 203.577</span></td><td>Base del sistema</td></tr>
+        <tr><td class="td-n">Tasa de participación terciaria</td><td>32% de la cohorte</td><td>28%–36%</td>
+          <td><span class="badge b-navy">62.641 candidatos técnicos</span></td><td>Mercado potencial</td></tr>
+        <tr><td class="td-n">Umbral campus técnico/tecnológico</td><td>8.000 jóvenes 17–25</td><td>7.000–9.000</td>
+          <td><span class="badge b-green">Viable — 195.753 &gt;&gt; 8.000</span></td><td>Justifica nuevo campus</td></tr>
+        <tr><td class="td-n">Umbral campus universitario</td><td>20.000 jóvenes 17–25</td><td>18.000–22.000</td>
+          <td><span class="badge b-navy2">Aplica — 126.895 Azuay</span></td><td>Evalúa necesidad nodo universitario</td></tr>
+        <tr><td class="td-n">Captura razonable campus nuevo</td><td>18% mercado objetivo</td><td>15%–20%</td>
+          <td><span class="badge b-orange">~11.271 estudiantes potenciales</span></td><td>Dimensión máxima campus</td></tr>
+        <tr><td class="td-n">Spillover interprovincial (amazónico)</td><td>8.000 jóvenes</td><td>5.000–10.000</td>
+          <td><span class="badge b-navy2">Morona S. + Cañar sin IES</span></td><td>Captura interprovincial</td></tr>
+        <tr class="td-hl"><td class="td-n"><strong>m² construidos / estudiante (objetivo)</strong></td>
+          <td>9 m² (referentes)</td><td>9–14 m²</td>
+          <td><span class="badge b-gold">Fase 1: 4.320–5.760 m²</span></td><td>Programa arquitectónico</td></tr>
+      </tbody>
+    </table>
+    <p class="src"><strong>Fuente:</strong> INEC proyecciones 2022; CEPAL 2019; SENESCYT PRETT 2021; Tec. Azuay 2024; MINEDU Perú RVM 140-2021; Open House Porto 2024 (FEUP); Wikipedia Tec Monterrey</p>
+  </div>
+</div>
+
+<!-- ══ 3.6 DETERMINANTES ══ -->
+<div class="pnl tab-content" id="tab-5">
+
+  <div class="info mb24">
+    <div class="info-t">DETERMINANTES DE IMPLANTACIÓN EN RESPUESTA AL DÉFICIT ACADÉMICO</div>
+    <p style="font-size:11px;line-height:1.8">
+      El déficit académico identificado no solo justifica el proyecto, sino que también condiciona su <strong>localización y configuración</strong>.
+      Los determinantes son los criterios de implantación que se derivan directamente del análisis de déficit, transformando las necesidades
+      educativas en parámetros de diseño urbano y arquitectónico.
+    </p>
+  </div>
+
+  <!-- Cards determinantes -->
+  <div class="det-grid" id="detGrid"></div>
+
+  <!-- Tabla cruce determinantes × carreras -->
+  <div class="card mb24">
+    <div class="bt gold">Cruce determinantes × carreras propuestas — validación de implantación</div>
+    <table>
+      <thead><tr>
+        <th>Carrera propuesta</th>
+        <th class="td-c">Centralidad</th><th class="td-c">Accesibilidad</th>
+        <th class="td-c">Proximidad</th><th class="td-c">Conectividad</th>
+        <th class="td-c">Disponibilidad</th><th class="td-c">Viabilidad</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td-n">💻 Ing. Tecnología e Informática</td>
+          <td class="td-c">✅</td><td class="td-c">✅</td><td class="td-c">✅</td>
+          <td class="td-c">✅</td><td class="td-c">✅</td>
+          <td class="td-c"><span class="badge b-green">MUY ALTA</span></td></tr>
+        <tr><td class="td-n">🏗️ Tecnologías en Construcción</td>
+          <td class="td-c">✅</td><td class="td-c">✅</td><td class="td-c">⚠️</td>
+          <td class="td-c">✅</td><td class="td-c">✅</td>
+          <td class="td-c"><span class="badge b-green">ALTA</span></td></tr>
+        <tr><td class="td-n">📊 Mercadotecnia y Diseño</td>
+          <td class="td-c">✅</td><td class="td-c">✅</td><td class="td-c">✅</td>
+          <td class="td-c">✅</td><td class="td-c">✅</td>
+          <td class="td-c"><span class="badge b-green">ALTA</span></td></tr>
+        <tr><td class="td-n">🌍 Tecnol. Turismo y Cultura</td>
+          <td class="td-c">✅</td><td class="td-c">✅</td><td class="td-c">✅</td>
+          <td class="td-c">⚠️</td><td class="td-c">✅</td>
+          <td class="td-c"><span class="badge b-green">MUY ALTA</span></td></tr>
+        <tr><td class="td-n">🏥 Centro Tecnol. en Salud</td>
+          <td class="td-c">✅</td><td class="td-c">✅</td><td class="td-c">✅</td>
+          <td class="td-c">✅</td><td class="td-c">✅</td>
+          <td class="td-c"><span class="badge b-green">MUY ALTA</span></td></tr>
+        <tr><td class="td-n">🌱 Tecnología Agropecuaria</td>
+          <td class="td-c">⚠️</td><td class="td-c">✅</td><td class="td-c">✅</td>
+          <td class="td-c">✅</td><td class="td-c">✅</td>
+          <td class="td-c"><span class="badge b-orange">MEDIA-ALTA</span></td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:9px;color:var(--steel);margin-top:6px">✅ Determinante favorable · ⚠️ Determinante condicionado (requiere estrategia específica de implantación)</p>
+    <p class="src"><strong>Fuente:</strong> SENESCYT oferta 2022; Secretaría de Planificación Zona 6 (2021); INEC ENEMDU 2024; Tec. Azuay 2024; PUGS Cuenca 2019</p>
+  </div>
+
+  <!-- Gráfico radar determinantes -->
+  <div class="g2">
+    <div class="card">
+      <div class="bt">Perfil de determinantes — requerimiento normativo vs. condición Cuenca</div>
+      <div class="cw"><canvas id="chDet"></canvas></div>
+      <p class="src"><strong>Fuente:</strong> PUGS GAD Cuenca / ONU Habitat 2019; INEC 2022; Secretaría de Planificación Zona 6, 2021; análisis propio</p>
+    </div>
+    <div class="card">
+      <div class="bt">Flujo: déficit → justificación → parámetro</div>
+      <div style="display:flex;flex-direction:column;gap:10px;padding:8px 0">
+        <div style="background:var(--light);border-left:4px solid var(--red);padding:12px 14px">
+          <div style="font-size:9px;font-weight:700;color:var(--red);letter-spacing:2px;margin-bottom:4px">DÉFICIT TERRITORIAL</div>
+          <div style="font-size:11px;color:var(--text)">Vacío en cobertura de sectores productivos y tecnológicos clave</div>
+        </div>
+        <div style="text-align:center;font-size:20px;color:var(--gold);font-weight:700">↓</div>
+        <div style="background:var(--light);border-left:4px solid var(--orange);padding:12px 14px">
+          <div style="font-size:9px;font-weight:700;color:var(--orange);letter-spacing:2px;margin-bottom:4px">JUSTIFICACIÓN DEL PROYECTO</div>
+          <div style="font-size:11px;color:var(--text)">Carreras en déficit → pertinencia académica y normativa (SENESCYT 2023-0033-AC)</div>
+        </div>
+        <div style="text-align:center;font-size:20px;color:var(--gold);font-weight:700">↓</div>
+        <div style="background:var(--light);border-left:4px solid var(--green);padding:12px 14px">
+          <div style="font-size:9px;font-weight:700;color:var(--green);letter-spacing:2px;margin-bottom:4px">PARÁMETRO ARQUITECTÓNICO</div>
+          <div style="font-size:11px;color:var(--text)">Determinantes de implantación + m²/est. + programa académico = proyecto arquitectónico</div>
+        </div>
+        <div style="text-align:center;font-size:20px;color:var(--gold);font-weight:700">↓</div>
+        <div style="background:var(--navy);color:#fff;padding:12px 14px">
+          <div style="font-size:9px;font-weight:700;color:var(--gold);letter-spacing:2px;margin-bottom:4px">RESULTADO</div>
+          <div style="font-size:11px">Campus técnico interprovincial · 6 carreras · ≥9 m²/est. · Cuenca como nodo Zona 6</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conclusión -->
+  <div class="concl">
+    <div class="concl-t">CONCLUSIONES DEL APARTADO 3</div>
+    <div class="concl-g">
+      <div>
+        <div class="concl-st">Superávit académico</div>
+        Las carreras más postuladas (Derecho 25.096, Medicina 22.449, Ed. Inicial 24.359) generan saturación laboral crítica.
+        El 61,1% elige carreras tradicionales. En I período 2023, el 87% de la oferta técnica no generó interés
+        por desconocimiento, no por falta de demanda laboral.
+      </div>
+      <div>
+        <div class="concl-st">Déficit educativo</div>
+        Las áreas de mayor déficit formativo en la Zona 6 son: Agropecuaria, Tecnologías Emergentes, Turismo y Gastronomía,
+        Producción Industrial y Salud Técnica. Estas coinciden con los sectores de mayor demanda laboral según WEF 2025,
+        OIT Cinterfor 2017 y la Secretaría de Planificación Zona 6.
+      </div>
+      <div>
+        <div class="concl-st">Conversores y determinantes</div>
+        Los conversores transforman el déficit en rangos dimensionantes: 360–480 est. en fase 1,
+        ≥9 m²/est. como objetivo de diseño. Los determinantes de implantación (centralidad, accesibilidad,
+        proximidad, conectividad y disponibilidad) orientan la localización del campus en Cuenca como nodo de la Zona 6.
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /cnt -->
+
+<!-- FOOTER -->
+<div class="ftr">
+  <div class="ftr-t">REFERENCIAS BIBLIOGRÁFICAS — APARTADO 03</div>
+  <div class="ftr-r">
+    <div>• SENESCYT. (2022). Datos postulación y oferta académica 2022. admision.senescyt.gob.ec</div>
+    <div>• El Universo. (2023). Estas son las diez carreras universitarias con mayor demanda en Ecuador. dic. 2023; recopilación CEAP-ESPOL</div>
+    <div>• Primicias. (2023). Estas son las carreras que pocos quieren estudiar en Ecuador. ago. 2023. primicias.ec</div>
+    <div>• Radio Intermedia Ecuador. (2023). Ecuador. Top 5: Carreras más demandadas según el SENESCYT. ago. 2023</div>
+    <div>• SENESCYT. (2023). Acuerdo Nro. SENESCYT-2023-0033-AC — Carreras de Interés Público. 22 nov. 2023. educacionsuperior.gob.ec</div>
+    <div>• Primicias. (2022). La mayoría sigue eligiendo carreras tradicionales (Medicina, Derecho, Educación). mar. 2022</div>
+    <div>• Hidrobo E. (2024). La Oferta y Demanda de Médicos en Ecuador 2016–2030. AFEME.</div>
+    <div>• OtraEducacion. (2020-2023). Qué carreras eligen los jóvenes ecuatorianos. otra-educacion.blogspot.com</div>
+    <div>• SENESCYT / Montalvo A. (2023). Universidades e institutos deben promocionar carreras técnicas. ago. 2023</div>
+    <div>• Secretaría Nacional de Planificación. (2021). Mesas de Participación Zona 6. planificacion.gob.ec</div>
+    <div>• WEF. (2025). Future of Jobs Report 2025. weforum.org</div>
+    <div>• OIT/Cinterfor. (2017). El futuro de la FP en ALC. ISBN: 978-92-9088-274-9. oitcinterfor.org</div>
+    <div>• INEC. (2022). Proyecciones de población 2022–2030. ecuadorencifras.gob.ec</div>
+    <div>• CEPAL. (2019). Tasa participación terciaria ALC. cepal.org</div>
+    <div>• SENESCYT. (2021). Proyecto PRETT. educacionsuperior.gob.ec</div>
+    <div>• PUGS GAD Cuenca / ONU Habitat. (2019). Plan de Uso y Gestión del Suelo. cuenca.gob.ec</div>
+  </div>
+</div>
+
+<script>
+const N='#1B3A5C',N2='#2B4F76',ST='#4A6D8C',RD='#C0392B',GR='#27AE60',OR='#E67E22',GO='#D4A017';
+const CH={};
+const tc='#4A5568',gc='#E2E8F0';
+
+function mkChart(id,cfg){
+  if(CH[id]){CH[id].destroy();delete CH[id]}
+  const c=document.getElementById(id)?.getContext('2d');
+  if(!c)return;
+  CH[id]=new Chart(c,cfg);
+}
+
+/* ══ SECTORES DEFICIT DATA ══ */
+const sectores=[
+  {id:0,icon:'🏭',nombre:'Producción',pct:34,color:N,
+   desc:'Sector con mayor brecha entre formación y demanda productiva. Sin oferta técnica interprovincial.',
+   carreras:['Procesamiento Industrial Madera','Producción Industrial','Alimentos','Tejidos Textiles','Mecánica industrial','Metalmecánica','Minas','Contabilidad avanzada','Comercio Exterior','Marketing digital','Negocios Digitales']},
+  {id:1,icon:'💻',nombre:'Tecnologías Emergentes',pct:28,color:N2,
+   desc:'Alta demanda laboral global. Sin cobertura técnica fuera de Cuenca. WEF: +30-58% crecimiento al 2027.',
+   carreras:['Big Data','Desarrollo de Software','Desarrollo de Aplicaciones Web','Tecnologías de la Información avanzada','Mecatrónica','Electrónica y Automatización','Electrónica Automotriz','Software especializado']},
+  {id:2,icon:'🌱',nombre:'Agrarias y Ambiente',pct:18,color:GR,
+   desc:'Morona Santiago y Cañar con alta actividad agropecuaria pero sin formación técnica de escala.',
+   carreras:['Agronomía técnica','Agroecología','Producción Pecuaria','Producción Animal','Zootecnia','Ingeniería Ambiental técnica','Biotecnología agrícola']},
+  {id:3,icon:'🌍',nombre:'Turismo y Gastronomía',pct:14,color:OR,
+   desc:'Cuenca Patrimonio UNESCO. Alto potencial ecoturístico en Morona. Sin tecnológico de turismo integral en Z6.',
+   carreras:['Gastronomía técnica','Turismo Rural','Gestión hotelera tecnológica','Guianza y ecoturismo','Gestión Patrimonio Cultural']},
+  {id:4,icon:'🎭',nombre:'Artes, Música, Danza',pct:6,color:'#8E44AD',
+   desc:'Solo Conservatorio y UCuenca (Cuenca). Sin oferta técnica en Cañar ni Morona Santiago.',
+   carreras:['Artes Musicales','Artes Escénicas','Danza','Ejecución de Instrumento Musical','Actuación / Teatro']},
+];
+
+let selectedSector=null;
+function renderSectores(){
+  const g=document.getElementById('sectorGrid');
+  if(!g)return;
+  g.innerHTML=sectores.map(s=>`
+    <div class="sector-card ${selectedSector===s.id?'active':''}"
+      style="border-top:4px solid ${s.color}" onclick="selectSector(${s.id})">
+      <div class="sector-head" style="background:${s.color}20">
+        <div class="sector-icon">${s.icon}</div>
+        <div class="sector-pct" style="color:${s.color}">${s.pct}%</div>
+        <div class="sector-name" style="color:${s.color}">${s.nombre}</div>
+      </div>
+      <div class="sector-body">${s.desc}</div>
+    </div>`).join('');
+}
+
+function selectSector(id){
+  selectedSector=selectedSector===id?null:id;
+  renderSectores();
+  const det=document.getElementById('sectorDetail');
+  if(selectedSector===null){det.style.display='none';return;}
+  const s=sectores.find(x=>x.id===id);
+  det.style.display='block';
+  det.style.borderLeftColor=s.color;
+  det.innerHTML=`
+    <div style="font-size:10px;font-weight:700;color:var(--navy);letter-spacing:1.5px;margin-bottom:10px">
+      ${s.icon} ${s.nombre.toUpperCase()} — CARRERAS ESPECÍFICAS EN DÉFICIT
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+      ${s.carreras.map(c=>`
+        <div style="background:#fff;border:1px solid var(--light);padding:7px 10px;font-size:10px;
+          border-left:3px solid ${s.color};border-radius:0 3px 3px 0">${c}</div>`).join('')}
+    </div>`;
+}
+
+/* ══ SATURADAS DATA ══ */
+const saturadas=[
+  {nombre:'Derecho',post:25096,plazas:'Limitada',ratio:'> 20:1',facultades:70,
+   stats:[{t:'Postulantes 2022',v:'25.096'},{t:'Plazas mercado/año',v:'Limitada'},{t:'Facultades nac.',v:'~70'}],
+   nota:'Saturación crónica. Exceso de abogados documentado por SENESCYT. Mercado informal en expansión compensa parcialmente.'},
+  {nombre:'Educación Inicial',post:24359,plazas:'Estable',ratio:'Alta',facultades:50,
+   stats:[{t:'Postulantes 2022',v:'24.359'},{t:'Plazas públicas/año',v:'Estable/limitada'},{t:'Modelos online',v:'Alta incidencia'}],
+   nota:'Auge de modalidad en línea impulsó postulaciones. Empleo público limitado por presupuesto estatal.'},
+  {nombre:'Enfermería',post:22789,plazas:'Media',ratio:'Media-Alta',facultades:40,
+   stats:[{t:'Postulantes 2022',v:'22.789'},{t:'Demanda real',v:'< postulación'},{t:'Migración laboral',v:'Alta'}],
+   nota:'Alta migración laboral al exterior (España, EE.UU.). Demanda real inferior a la postulación en mercado nacional.'},
+  {nombre:'Medicina General',post:22449,plazas:'100–150 (público)',ratio:'> 20:1',facultades:37,
+   stats:[{t:'Postulantes 2022',v:'22.449'},{t:'Plazas públicas/año',v:'100–150'},{t:'Tasa nac. 2025',v:'40/10.000 hab.'}],
+   nota:'"El país se está saturando de médicos generales" — Colegio Médicos Pichincha (Ecuavisa dic. 2025). OMS recomienda 23/10.000. Proyección 2030: 59,1/10.000.'},
+  {nombre:'Administración Empresas',post:18000,plazas:'Media',ratio:'Alta',facultades:90,
+   stats:[{t:'Postulantes 2022',v:'~18.000'},{t:'IES activas',v:'~90 nac.'},{t:'Saturación',v:'Alta'}],
+   nota:'Alta concentración de graduados. Mercado absorbe perfiles especializados pero no generalistas. Digitalización reduce demanda de roles administrativos tradicionales.'},
+  {nombre:'Psicología',post:8352,plazas:'Media',ratio:'Media-Alta',facultades:35,
+   stats:[{t:'Postulantes 2022',v:'8.352'},{t:'Postulantes 2023',v:'11.406 (+36%)'},{t:'Crecimiento',v:'Acelerado'}],
+   nota:'Crecimiento acelerado pospandemia por visibilidad de salud mental. Mercado de ejercicio privado en expansión pero saturación en sector público.'},
+];
+
+function renderSaturadas(){
+  const l=document.getElementById('satList');
+  if(!l)return;
+  l.innerHTML=saturadas.map((s,i)=>`
+    <div class="sat-card" id="sc${i}" onclick="toggleSat(${i})">
+      <div class="sat-head">
+        <div>
+          <div class="sat-label">${s.nombre}</div>
+          <div style="font-size:9px;color:var(--steel);margin-top:2px">
+            Ratio: ${s.ratio} · Facultades activas: ~${s.facultades} nacionales
+          </div>
+        </div>
+        <div class="sat-right">
+          <div>
+            <div class="sat-post">${s.post.toLocaleString()}</div>
+            <div style="font-size:8px;color:var(--steel)">postulantes 2022</div>
+          </div>
+          <span class="sat-arrow">▼</span>
+        </div>
+      </div>
+      <div class="sat-body" id="sb${i}">
+        ${s.stats.map(st=>`
+          <div class="sat-stat">
+            <div class="sat-stat-t">${st.t}</div>
+            <div class="sat-stat-v">${st.v}</div>
+          </div>`).join('')}
+        <div class="sat-note">${s.nota}</div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleSat(i){
+  const card=document.getElementById(`sc${i}`);
+  const body=document.getElementById(`sb${i}`);
+  card.classList.toggle('open');
+  body.classList.toggle('open');
+  body.style.display=body.classList.contains('open')?'grid':'none';
+}
+
+/* ══ CONVERSORES ══ */
+const conversores=[
+  {icon:'👥',label:'Población objetivo — cohorte 17–25 años Zona 6',sub:'Base demográfica del sistema',
+   val:'195.753',range:'→ 203.577 (2030)',
+   stats:[{t:'Azuay',v:'126.895 (64,8%)'},{t:'Cañar',v:'34.592 (17,7%)'},{t:'Morona Santiago',v:'34.266 (17,5%)'}],
+   text:'La cohorte 17–25 de la Zona 6 es la base de todo el sistema de análisis. Con tasa de crecimiento del 0,49%/año, se proyectan 203.577 jóvenes en 2030. Azuay concentra el 64,8%. Esta cifra es el punto de arranque de todos los conversores.',
+   fuente:'INEC — EPP Revisión 2024; Censo 2022'},
+  {icon:'📊',label:'Tasa de participación técnico-tecnológica',sub:'Estimación del mercado efectivo',
+   val:'32%',range:'Rango: 28%–36%',
+   stats:[{t:'Candidatos técnicos Z6',v:'62.641'},{t:'Escenario bajo (28%)',v:'54.811'},{t:'Escenario alto (36%)',v:'70.471'}],
+   text:'Aplicada a los 195.753 jóvenes de la Zona 6, la tasa del 32% (CEPAL 2019) estima un mercado de 62.641 candidatos a formación técnica. Actualmente solo el 17,4% opta por técnicas (SENESCYT 2022), indicando potencial de crecimiento importante.',
+   fuente:'CEPAL 2019; SENESCYT 2022 (17,4% actual)'},
+  {icon:'🏫',label:'Umbral de viabilidad — campus técnico-tecnológico',sub:'Mínimo de jóvenes 17–25 para justificar un nuevo campus',
+   val:'8.000',range:'Rango: 7.000–9.000 jóvenes',
+   stats:[{t:'Zona 6 total',v:'195.753 (24x el umbral)'},{t:'Solo Azuay',v:'126.895 (16x el umbral)'},{t:'Morona Santiago',v:'34.266 (4x el umbral)'}],
+   text:'La Zona 6 multiplica el umbral por 24. Incluso Morona Santiago — la provincia menos cubierta — lo supera 4 veces. Esto confirma inequívocamente la viabilidad de un nuevo campus técnico.',
+   fuente:'Umbral construido desde Tec. Azuay 2024; UDA Tecnológicos 2022; experiencia IES técnicas LATAM'},
+  {icon:'🎯',label:'Captura razonable de un campus nuevo',sub:'% del mercado que puede absorber la nueva institución',
+   val:'18%',range:'15%–20% del mercado',
+   stats:[{t:'Captura estimada (18%)',v:'11.271 estudiantes'},{t:'Conservador (15%)',v:'9.396'},{t:'Optimista (20%)',v:'12.528'}],
+   text:'Un campus nuevo puede captar entre el 15% y 20% del mercado objetivo en su vida útil. Sobre 62.641 candidatos técnicos, el escenario medio proyecta 11.271 estudiantes como capacidad máxima teórica del campus.',
+   fuente:'Referencia: Tec. Azuay 2024 (400 nuevos/ciclo); El Universo 2022; cálculo propio'},
+  {icon:'🌐',label:'Spillover interprovincial (campus amazónico)',sub:'Estudiantes adicionales de provincias sin oferta técnica',
+   val:'8.000',range:'5.000–10.000 jóvenes',
+   stats:[{t:'Morona Santiago',v:'34.266 jóv. — tasa 0,68%/año'},{t:'Cañar cantones sin IES',v:'~20.000 jóvenes'},{t:'Spillover estimado',v:'8.000 candidatos'}],
+   text:'Morona Santiago (mayor crecimiento relativo, 0,68%/año) y los cantones de Cañar sin IES generan un flujo adicional hacia Cuenca. Este spillover de 8.000 candidatos justifica diseñar el campus con capacidad de expansión modular.',
+   fuente:'INEC proyecciones 2022 (tasa por provincia); SENESCYT oferta 2022 (sin IES técnica en Morona S.)'},
+];
+
+function renderConversores(){
+  const l=document.getElementById('convList');
+  if(!l)return;
+  l.innerHTML=conversores.map((c,i)=>`
+    <div class="conv-item" id="ci${i}" onclick="toggleConv(${i})">
+      <div class="conv-head">
+        <div class="conv-left">
+          <div class="conv-icon">${c.icon}</div>
+          <div>
+            <div class="conv-label">${c.label}</div>
+            <div class="conv-sub">${c.sub}</div>
+          </div>
+        </div>
+        <div class="conv-right">
+          <div>
+            <div class="conv-val">${c.val}</div>
+            <div class="conv-range">${c.range}</div>
+          </div>
+          <span class="conv-arrow">▼</span>
+        </div>
+      </div>
+      <div class="conv-body" id="cb${i}">
+        <div class="conv-body-grid">
+          ${c.stats.map(s=>`<div class="conv-stat"><div class="conv-stat-t">${s.t}</div><div class="conv-stat-v">${s.v}</div></div>`).join('')}
+        </div>
+        <div class="conv-text">${c.text}</div>
+        <div class="conv-src"><strong>Fuente:</strong> ${c.fuente}</div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleConv(i){
+  const card=document.getElementById(`ci${i}`);
+  const body=document.getElementById(`cb${i}`);
+  card.classList.toggle('open');
+  body.classList.toggle('open');
+  body.style.display=body.classList.contains('open')?'block':'none';
+}
+
+/* ══ DETERMINANTES ══ */
+const dets=[
+  {icon:'🏙️',nombre:'Centralidad',color:N,
+   text:'Ubicación estratégica dentro de la estructura urbana de Cuenca. Alta concentración de actividades y servicios. Nodo de equipamiento de nivel superior zonal.'},
+  {icon:'🚌',nombre:'Accesibilidad',color:N2,
+   text:'Alta accesibilidad multimodal. Convergencia de transporte público y peatonal. Cercanía a vías de conexión interprovincial Azuay–Cañar–Morona Santiago.'},
+  {icon:'👥',nombre:'Proximidad',color:ST,
+   text:'Cercanía a la mayor concentración de jóvenes 17–25 de la Zona 6. Alta densidad de población objetivo en radio de influencia del campus.'},
+  {icon:'⚡',nombre:'Conectividad',color:GR,
+   text:'Vinculación con dinámicas productivas locales. Cercanía al Parque Industrial Cuenca, zonas agrícolas de Cañar y sector extractivo de Morona Santiago.'},
+  {icon:'📐',nombre:'Disponibilidad',color:OR,
+   text:'Suelo disponible con capacidad de expansión futura. Inserción coherente en el tejido urbano. Compatible con normativa PUGS GAD Municipal de Cuenca 2019.'},
+];
+
+function renderDeterminantes(){
+  const g=document.getElementById('detGrid');
+  if(!g)return;
+  g.innerHTML=dets.map(d=>`
+    <div class="det" style="border-top-color:${d.color}">
+      <div class="det-icon">${d.icon}</div>
+      <div class="det-name" style="color:${d.color}">${d.nombre}</div>
+      <div class="det-text">${d.text}</div>
+    </div>`).join('');
+}
+
+/* ══ TOGGLE SUPERÁVIT/DÉFICIT ══ */
+let sdActive=0;
+function toggleSD(i){
+  sdActive=i;
+  document.querySelectorAll('.sd-btn').forEach((b,idx)=>{
+    b.classList.remove('act-red','act-green');
+    if(idx===i)b.classList.add(i===0?'act-red':'act-green');
+  });
+  document.querySelectorAll('.sd-section').forEach((s,idx)=>s.classList.toggle('active',idx===i));
+}
+
+/* ══ COUNTERS ══ */
+function animateKPIs(){
+  document.querySelectorAll('[data-target]').forEach(el=>{
+    if(el.dataset.animated)return;el.dataset.animated=1;
+    const target=parseFloat(el.dataset.target),isInt=!!el.dataset.int,dec=parseInt(el.dataset.dec||0);
+    let t0=null;const dur=1200;
+    function step(ts){
+      if(!t0)t0=ts;const p=Math.min((ts-t0)/dur,1),e=1-Math.pow(1-p,3),v=e*target;
+      el.textContent=isInt?Math.floor(v).toLocaleString():dec?v.toFixed(dec):Math.floor(v);
+      if(p<1)requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+/* ══ CHARTS ══ */
+function drawChartsTab(t){
+  if(t===0){
+    mkChart('chSat',{type:'bar',
+      data:{labels:['Derecho','Ed. Inicial','Enfermería','Medicina','Adm. Emp.','Ed. Básica','Psicología','Cont./Aud.'],
+        datasets:[{data:[25096,24359,22789,22449,18000,16500,8352,8556],
+          backgroundColor:[RD,RD,OR,RD,OR,OR,ST,ST],borderRadius:4,label:'Postulantes 2022'}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.toLocaleString()} postulantes`}}},
+        scales:{x:{ticks:{callback:v=>`${(v/1000).toFixed(0)}k`,font:{size:9},color:tc},grid:{color:gc}},
+          y:{ticks:{font:{size:9},color:tc},grid:{display:false}}}}});
+    mkChart('chCupos',{type:'bar',
+      data:{labels:['Medicina','Derecho','Ed. Inicial','Enfermería'],
+        datasets:[
+          {label:'Postulantes 2022',data:[22449,25096,24359,22789],backgroundColor:RD+'BB',borderRadius:4},
+          {label:'Plazas disponibles/año',data:[150,500,1200,800],backgroundColor:GR+'BB',borderRadius:4}
+        ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom',labels:{font:{size:9},color:tc}}},
+        scales:{y:{grid:{color:gc},ticks:{font:{size:9},color:tc}},
+          x:{grid:{display:false},ticks:{font:{size:9},color:tc}}}}});
+    mkChart('chDeficit',{type:'doughnut',
+      data:{labels:sectores.map(s=>`${s.nombre} (${s.pct}%)`),
+        datasets:[{data:sectores.map(s=>s.pct),backgroundColor:[N,N2,GR,OR,'#8E44AD'],borderWidth:2,borderColor:'#fff'}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'45%',
+        plugins:{legend:{position:'bottom',labels:{font:{size:9},color:tc}}}}});
+    mkChart('chBrechas',{type:'bar',
+      data:{labels:['TI/Software','Agropecuaria','Turismo/Cultura','Salud técnica','Construcción','Mercadotecnia'],
+        datasets:[
+          {label:'Cobertura actual Z6 (%)',data:[25,15,20,5,0,15],backgroundColor:ST+'BB',borderRadius:4},
+          {label:'Demanda laboral proyect. (%)',data:[90,85,80,90,75,70],backgroundColor:GO+'BB',borderRadius:4}
+        ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom',labels:{font:{size:9},color:tc}}},
+        scales:{y:{max:100,ticks:{callback:v=>`${v}%`,font:{size:9},color:tc},grid:{color:gc}},
+          x:{grid:{display:false},ticks:{font:{size:8},color:tc}}}}});
+  }
+  if(t===1){
+    mkChart('chConcentracion',{type:'doughnut',
+      data:{labels:['Carreras saturadas (Derecho, Med., Ed., Enf., Adm.)','Otras carreras universitarias','Formación técnica/tecnológica'],
+        datasets:[{data:[61.1,21.5,17.4],backgroundColor:[RD,ST,GR],borderWidth:2,borderColor:'#fff'}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'45%',
+        plugins:{legend:{position:'bottom',labels:{font:{size:9},color:tc}},
+          tooltip:{callbacks:{label:c=>`${c.label}: ${c.raw}%`}}}}});
+    mkChart('chEvolucion',{type:'line',
+      data:{labels:['2017','2018','2019','2020*','2021','2022','2023'],
+        datasets:[
+          {label:'% elige carreras tradicionales',data:[65,64,63,62,62,61.1,61],
+            borderColor:RD,backgroundColor:'rgba(192,57,43,.12)',borderWidth:2,fill:true,tension:.35,pointRadius:4},
+          {label:'% elige carreras técnicas',data:[12,13,14,14,15,17.4,17],
+            borderColor:GR,backgroundColor:'rgba(39,174,96,.1)',borderWidth:2,fill:true,tension:.35,pointRadius:4}
+        ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom',labels:{font:{size:9},color:tc}}},
+        scales:{y:{max:75,ticks:{callback:v=>`${v}%`,font:{size:9},color:tc},grid:{color:gc}},
+          x:{grid:{display:false},ticks:{font:{size:9},color:tc}}}}});
+  }
+  if(t===2){
+    mkChart('chDeficit2',{type:'bar',
+      data:{labels:sectores.map(s=>s.nombre),
+        datasets:[{data:sectores.map(s=>s.pct),
+          backgroundColor:[N,N2,GR,OR,'#8E44AD'],borderRadius:6,label:'% del déficit Z6'}]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw}% del déficit total`}}},
+        scales:{y:{max:40,ticks:{callback:v=>`${v}%`,font:{size:9},color:tc},grid:{color:gc}},
+          x:{grid:{display:false},ticks:{font:{size:8},color:tc}}}}});
+    mkChart('chRadarDef',{type:'radar',
+      data:{labels:['Agropecuaria','Turismo/Cultura','Tecnologías TI','Producción','Salud técnica','Construcción','Mercadotecnia'],
+        datasets:[
+          {label:'Cobertura actual Z6',data:[20,22,28,18,5,0,18],
+            borderColor:RD,backgroundColor:'rgba(192,57,43,.15)',borderWidth:2,pointRadius:4},
+          {label:'Demanda laboral proyectada',data:[85,80,92,80,90,75,70],
+            borderColor:GR,backgroundColor:'rgba(39,174,96,.12)',borderWidth:2,pointRadius:4}
+        ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom',labels:{font:{size:9},color:tc}}},
+        scales:{r:{max:100,ticks:{stepSize:20,font:{size:7},color:tc},grid:{color:gc},
+          pointLabels:{font:{size:8},color:tc}}}}});
+  }
+  if(t===5){
+    mkChart('chDet',{type:'radar',
+      data:{labels:['Centralidad','Accesibilidad','Proximidad','Conectividad','Disponibilidad'],
+        datasets:[
+          {label:'Requerimiento normativo',data:[90,90,85,80,70],
+            borderColor:GO,backgroundColor:'rgba(212,160,23,.15)',borderWidth:2,pointRadius:4},
+          {label:'Perfil Cuenca (estimado)',data:[88,82,84,78,65],
+            borderColor:N,backgroundColor:'rgba(27,58,92,.15)',borderWidth:2,pointRadius:4}
+        ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom',labels:{font:{size:9},color:tc}}},
+        scales:{r:{ticks:{stepSize:20,font:{size:7},color:tc},grid:{color:gc},
+          pointLabels:{font:{size:9},color:tc}}}}});
+  }
+}
+
+/* ══ TAB SWITCH ══ */
+let activeTab=0;
+function switchTab(i){
+  document.querySelectorAll('.pnl').forEach((p,idx)=>p.classList.toggle('active',idx===i));
+  document.querySelectorAll('.tb').forEach((b,idx)=>b.classList.toggle('active',idx===i));
+  activeTab=i;
+  setTimeout(()=>drawChartsTab(i),60);
+  if(i===0)setTimeout(animateKPIs,200);
+}
+
+/* ══ INIT ══ */
+renderSectores();
+renderSaturadas();
+renderConversores();
+renderDeterminantes();
+drawChartsTab(0);
+setTimeout(animateKPIs,300);
+document.querySelectorAll('.sat-body,.conv-body').forEach(b=>b.style.display='none');
+</script>
+</body>
+</html>
